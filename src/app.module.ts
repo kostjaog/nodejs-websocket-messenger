@@ -7,11 +7,7 @@ import { ChatsModule } from './chats/chats.module';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [
-    PrismaModule,
-    ChatsModule,
-    HttpModule
-  ],
+  imports: [PrismaModule, ChatsModule, HttpModule],
   controllers: [AppController],
   providers: [AppService, AppGateway],
 })

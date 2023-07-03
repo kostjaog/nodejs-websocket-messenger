@@ -7,12 +7,10 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
 import { getSignedUrl } from './integrations/yandex.bucket';
 import axios from 'axios';
-import { HttpService } from '@nestjs/axios';
-import { SendMessages } from './integrations/firebase'
+import { SendMessages } from './integrations/firebase';
 
 @WebSocketGateway({
   cors: {
@@ -22,43 +20,50 @@ import { SendMessages } from './integrations/firebase'
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private appService: AppService, private readonly prisma: PrismaService, private readonly http: HttpService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   @WebSocketServer() server: Server;
 
-  async sendMessageHttp(payload: {from: string, to: string, message: string}, image?:Express.Multer.File) {
+  async sendMessageHttp(
+    payload: { from: string; to: string; message: string },
+    image?: Express.Multer.File,
+  ) {
     const chatData = await this.prisma.chat.findUnique({
       where: {
-        id: payload.to
+        id: payload.to,
       },
       include: {
-        participants: true
-      }
-    })
+        participants: true,
+      },
+    });
 
-    const tokens = chatData.participants.map((participant) => {
-      return participant.deviceTokens
-    }).flat()
+    const tokens = chatData.participants
+      .map((participant) => {
+        return participant.deviceTokens;
+      })
+      .flat();
     SendMessages({
       deviceTokens: tokens,
       notification: {
         title: 'У вас новое сообщение от технической поддержки',
         body: 'Проверьте чат в приложении AlyansAuto',
-      }
-    })
+      },
+    });
     chatData.participants.map((participant) => {
       if (participant.email !== payload.from) {
-        this.server.to(participant.listenerId).emit('recMessage', payload.message)
+        this.server
+          .to(participant.listenerId)
+          .emit('recMessage', payload.message);
       }
-    })
+    });
     if (image) {
       const signedURL = await getSignedUrl({
         fileName: image.originalname,
-        type: image.mimetype
-      })
+        type: image.mimetype,
+      });
       await axios.put(signedURL.signedURL, image.buffer, {
         withCredentials: true,
-        headers: { "Content-Type": "image/jpeg" },
+        headers: { 'Content-Type': 'image/jpeg' },
       });
 
       await this.prisma.message.create({
@@ -66,62 +71,69 @@ export class AppGateway
           text: payload.message,
           chat: {
             connect: {
-              id: payload.to
-            }
+              id: payload.to,
+            },
           },
           mediaUrl: signedURL.objectURL,
           sender: {
             connect: {
-              email: payload.from
-            }
-          }
-        }
-      })
-      return 'Sent'
+              email: payload.from,
+            },
+          },
+        },
+      });
+      return 'Sent';
     }
     await this.prisma.message.create({
       data: {
         text: payload.message,
         chat: {
           connect: {
-            id: payload.to
-          }
+            id: payload.to,
+          },
         },
         sender: {
           connect: {
-            email: payload.from
-          }
-        }
-      }
-    })
-    return 'Sent'
+            email: payload.from,
+          },
+        },
+      },
+    });
+    return 'Sent';
   }
 
   @SubscribeMessage('sendMessage')
-  async handleSendMessage(client: Socket, payload: {from: string, to: string, message: string}): Promise<void> {
+  async handleSendMessage(
+    client: Socket,
+    payload: { from: string; to: string; message: string },
+  ): Promise<void> {
     const chatData = await this.prisma.chat.findUnique({
       where: {
-        id: payload.to
+        id: payload.to,
       },
       include: {
-        participants: true
-      }
-    })
+        participants: true,
+      },
+    });
     chatData.participants.map((participant) => {
       if (participant.email !== payload.from) {
-        this.server.to(participant.listenerId).emit('recMessage', payload.message)
+        this.server
+          .to(participant.listenerId)
+          .emit('recMessage', payload.message);
       }
-    })
-    const tokens = chatData.participants.map((participant) => {
-      return participant.deviceTokens
-    }).flat()
+    });
+    const tokens = chatData.participants
+      .map((participant) => {
+        return participant.deviceTokens;
+      })
+      .flat();
     SendMessages({
       deviceTokens: tokens,
       notification: {
         title: 'У вас новое сообщение от технической поддержки',
         body: 'Проверьте чат в приложении AlyansAuto',
-      }
-    })
+      },
+    });
   }
 
   afterInit(server: Server) {
@@ -135,18 +147,18 @@ export class AppGateway
   async handleConnection(client: Socket, ...args: any[]) {
     const candidate = await this.prisma.senderInfo.findUnique({
       where: {
-        email: client.handshake.query.email as string
-      }
-    })
+        email: client.handshake.query.email as string,
+      },
+    });
 
     if (!candidate) {
       await this.prisma.senderInfo.create({
         data: {
           email: client.handshake.query.email as string,
           name: client.handshake.query.name as string,
-          profilePhotoUrl: client.handshake.query.profileUrl as string
-        }
-      })
+          profilePhotoUrl: client.handshake.query.profileUrl as string,
+        },
+      });
     }
 
     await this.prisma.senderInfo.update({
@@ -154,9 +166,9 @@ export class AppGateway
         email: client.handshake.query.email as string,
       },
       data: {
-        listenerId: client.id
-      }
-    })
+        listenerId: client.id,
+      },
+    });
 
     console.log(`Connected ${client.id}`);
   }

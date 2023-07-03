@@ -34,12 +34,14 @@
     "@nestjs/websockets": "^8.4.4",
     "@prisma/client": "^4.16.1",
     "@types/multer": "^1.4.7",
+    "@types/uuid": "^9.0.2",
     "aws-sdk": "^2.1408.0",
     "axios": "^1.4.0",
     "cuid": "^2.1.8",
     "ejs": "^3.1.6",
     "firebase-admin": "^11.9.0",
     "hbs": "^4.2.0",
+    "husky": "^8.0.3",
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
     "pg": "^8.7.3",
@@ -90,5 +92,10 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint --src"
+    }
   }
 }

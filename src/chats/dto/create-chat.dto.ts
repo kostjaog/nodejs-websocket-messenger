@@ -1,5 +1,5 @@
-import { SenderInfo } from "@prisma/client";
+import { SenderInfo } from '@prisma/client';
 
 export class CreateChatDto {
-    readonly partisipant: SenderInfo
+  readonly partisipant: SenderInfo;
 }

@@ -10,7 +10,7 @@ async function bootstrap() {
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.setViewEngine('ejs');
   await app.listen(APP_PORT, () => {
-    console.log(`Application started on: ${APP_PORT}`)
+    console.log(`Application started on: ${APP_PORT}`);
   });
 }
 bootstrap();

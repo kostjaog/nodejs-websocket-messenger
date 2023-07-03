@@ -22,17 +22,17 @@ export class ChatsController {
   }
 
   @Post('/join')
-  joinChat(@Body() bodyData: {participant: SenderInfo, chatId: string}) {
-    return this.chatsService.joinChat(bodyData.participant, bodyData.chatId)
+  joinChat(@Body() bodyData: { participant: SenderInfo; chatId: string }) {
+    return this.chatsService.joinChat(bodyData.participant, bodyData.chatId);
   }
 
   @Post('/read')
-  readMessage(@Body() body: { participantEmail: string, messageId: string}) {
-    return this.chatsService.readMessage(body.messageId, body.participantEmail)
+  readMessage(@Body() body: { participantEmail: string; messageId: string }) {
+    return this.chatsService.readMessage(body.messageId, body.participantEmail);
   }
 
   @Post('/addToken')
-  addToken(@Body() body: { participantEmail: string, deviceToken: string}) {
+  addToken(@Body() body: { participantEmail: string; deviceToken: string }) {
     return this.addToken(body);
   }
 }
