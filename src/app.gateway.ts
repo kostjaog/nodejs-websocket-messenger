@@ -37,18 +37,18 @@ export class AppGateway
       },
     });
 
-    const tokens = chatData.participants
-      .map((participant) => {
-        return participant.deviceTokens;
-      })
-      .flat();
-    SendMessages({
-      deviceTokens: tokens,
-      notification: {
-        title: 'У вас новое сообщение от технической поддержки',
-        body: 'Проверьте чат в приложении AlyansAuto',
-      },
-    });
+    // const tokens = chatData.participants
+    //   .map((participant) => {
+    //     return participant.deviceTokens;
+    //   })
+    //   .flat();
+    // SendMessages({
+    //   deviceTokens: tokens,
+    //   notification: {
+    //     title: 'У вас новое сообщение от технической поддержки',
+    //     body: 'Проверьте чат в приложении AlyansAuto',
+    //   },
+    // });
     chatData.participants.map((participant) => {
       if (participant.email !== payload.from) {
         this.server
@@ -122,21 +122,22 @@ export class AppGateway
           .emit('recMessage', payload.message);
       }
     });
-    const tokens = chatData.participants
-      .map((participant) => {
-        return participant.deviceTokens;
-      })
-      .flat();
-    SendMessages({
-      deviceTokens: tokens,
-      notification: {
-        title: 'У вас новое сообщение от технической поддержки',
-        body: 'Проверьте чат в приложении AlyansAuto',
-      },
-    });
+    // const tokens = chatData.participants
+    //   .map((participant) => {
+    //     return participant.deviceTokens;
+    //   })
+    //   .flat();
+    // SendMessages({
+    //   deviceTokens: tokens,
+    //   notification: {
+    //     title: 'У вас новое сообщение от технической поддержки',
+    //     body: 'Проверьте чат в приложении AlyansAuto',
+    //   },
+    // });
   }
 
   afterInit(server: Server) {
+    console.log('changes example');
     console.log('Websocket initialized');
   }
 
